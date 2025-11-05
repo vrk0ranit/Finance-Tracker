@@ -21,12 +21,11 @@ export default function App() {
   const [insight, setInsight] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Fetch current month's transactions when page loads
+  // Fetch transactions on mount
   useEffect(() => {
     fetchCurrent();
   }, []);
 
-  // 🟢 Fetch current month's transactions
   const fetchCurrent = async () => {
     try {
       const res = await api.get('/api/transactions/current');
@@ -37,7 +36,6 @@ export default function App() {
     }
   };
 
-  // 🟢 Add Income (monthly or yearly)
   const addIncome = async () => {
     if (!incomeAmount) return alert('Please enter income amount.');
     try {
@@ -53,7 +51,6 @@ export default function App() {
     }
   };
 
-  // 🟥 Add Expense
   const addExpense = async () => {
     if (!expense.category || !expense.amount)
       return alert('Please fill category and amount.');
@@ -71,7 +68,6 @@ export default function App() {
     }
   };
 
-  // 💡 Get AI Financial Insight from backend (Gemini)
   const getInsight = async () => {
     setLoading(true);
     setInsight('');
@@ -86,7 +82,6 @@ export default function App() {
     }
   };
 
-  // 🧮 Totals
   const totalIncome = transactions
     .filter((t) => t.type === 'income')
     .reduce((sum, t) => sum + t.amount, 0);
@@ -97,7 +92,6 @@ export default function App() {
 
   const balance = totalIncome - totalExpense;
 
-  // 📊 Chart Data for Expenses
   const categories = [
     ...new Set(transactions.filter((t) => t.type === 'expense').map((t) => t.category)),
   ];
@@ -119,6 +113,7 @@ export default function App() {
 
   const chartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: { position: 'top' },
       title: { display: true, text: 'Expense Breakdown by Category' },
@@ -126,14 +121,15 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-6">
-      <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-6">
-        <h1 className="text-4xl font-extrabold text-center text-blue-600 mb-8 flex justify-center items-center gap-2">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 md:p-8">
+      <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg p-4 sm:p-6 md:p-8">
+        {/* Header */}
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-center text-blue-600 mb-6 flex justify-center items-center gap-2 flex-wrap">
           💰 Personal Finance Tracker
         </h1>
 
         {/* Summary Bar */}
-        <div className="flex justify-between items-center bg-gray-100 p-4 rounded-xl mb-6 shadow-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-gray-100 p-4 rounded-xl mb-6 shadow-sm text-center">
           <p className="text-green-600 font-semibold text-lg">
             Income: ₹{totalIncome.toLocaleString()}
           </p>
@@ -151,26 +147,26 @@ export default function App() {
 
         {/* Income Section */}
         <div className="mb-8 bg-green-50 p-5 rounded-xl shadow-sm">
-          <h2 className="text-xl font-bold text-green-700 mb-3">🟢 Add Income</h2>
-          <div className="flex flex-wrap gap-3 items-center">
+          <h2 className="text-lg sm:text-xl font-bold text-green-700 mb-4">🟢 Add Income</h2>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             <input
               type="number"
               placeholder="Income Amount"
               value={incomeAmount}
               onChange={(e) => setIncomeAmount(e.target.value)}
-              className="border px-3 py-2 rounded-lg w-40"
+              className="border px-3 py-2 rounded-lg w-full sm:w-40"
             />
             <select
               value={incomePeriod}
               onChange={(e) => setIncomePeriod(e.target.value)}
-              className="border px-3 py-2 rounded-lg"
+              className="border px-3 py-2 rounded-lg w-full sm:w-40"
             >
               <option value="monthly">Monthly</option>
               <option value="yearly">Yearly</option>
             </select>
             <button
               onClick={addIncome}
-              className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg font-semibold shadow-md"
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold shadow-md w-full sm:w-auto"
             >
               ➕ Add Income
             </button>
@@ -179,32 +175,32 @@ export default function App() {
 
         {/* Expense Section */}
         <div className="mb-8 bg-red-50 p-5 rounded-xl shadow-sm">
-          <h2 className="text-xl font-bold text-red-700 mb-3">🔴 Add Expense</h2>
-          <div className="flex flex-wrap gap-3 items-center">
+          <h2 className="text-lg sm:text-xl font-bold text-red-700 mb-4">🔴 Add Expense</h2>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             <input
               type="text"
               placeholder="Category (e.g. Rent, Food)"
               value={expense.category}
               onChange={(e) => setExpense({ ...expense, category: e.target.value })}
-              className="border px-3 py-2 rounded-lg flex-1"
+              className="border px-3 py-2 rounded-lg w-full"
             />
             <input
               type="number"
               placeholder="Amount"
               value={expense.amount}
               onChange={(e) => setExpense({ ...expense, amount: e.target.value })}
-              className="border px-3 py-2 rounded-lg w-32"
+              className="border px-3 py-2 rounded-lg w-full sm:w-32"
             />
             <input
               type="text"
               placeholder="Note (optional)"
               value={expense.note}
               onChange={(e) => setExpense({ ...expense, note: e.target.value })}
-              className="border px-3 py-2 rounded-lg flex-1"
+              className="border px-3 py-2 rounded-lg w-full"
             />
             <button
               onClick={addExpense}
-              className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg font-semibold shadow-md"
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold shadow-md w-full sm:w-auto"
             >
               ➕ Add Expense
             </button>
@@ -212,7 +208,7 @@ export default function App() {
         </div>
 
         {/* Chart Section */}
-        <div className="bg-white border rounded-xl shadow-sm p-4 mb-8">
+        <div className="bg-white border rounded-xl shadow-sm p-4 mb-8 h-64 sm:h-80">
           {categories.length ? (
             <Bar data={chartData} options={chartOptions} />
           ) : (
@@ -227,20 +223,23 @@ export default function App() {
           <button
             onClick={getInsight}
             disabled={loading}
-            className={`${
-              loading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'
-            } text-white px-6 py-3 rounded-lg font-semibold shadow-md`}
+            className={`w-full sm:w-auto px-6 py-3 rounded-lg font-semibold shadow-md ${
+              loading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700 text-white'
+            }`}
           >
             {loading ? '⏳ Analyzing...' : '💡 Get AI Budget Advice'}
           </button>
         </div>
 
+        {/* AI Insight Output */}
         {insight && (
-          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-300 rounded-lg p-5 shadow-md">
-            <h2 className="text-xl font-bold text-yellow-800 mb-2 flex items-center gap-2">
+          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-300 rounded-lg p-4 sm:p-6 shadow-md">
+            <h2 className="text-lg sm:text-xl font-bold text-yellow-800 mb-2 flex items-center gap-2">
               🧠 AI Insight
             </h2>
-            <p className="text-gray-700 whitespace-pre-line leading-relaxed">{insight}</p>
+            <p className="text-gray-700 whitespace-pre-line leading-relaxed text-sm sm:text-base">
+              {insight}
+            </p>
           </div>
         )}
       </div>
